@@ -1,0 +1,18 @@
+#!/bin/bash -xe
+if [ -z "${S3_BACKUP_DIR}" ]; then
+  echo "Please specify \$S3_BACKUP_DIR"
+  exit 1
+fi
+
+TEMP_ZIP=/tmp/dokuwiki_backup_intermidiate.zip
+
+pushd $(dirname ${DOKUWIKI_ROOT})
+zip -P ${BACKUP_ZIP_PASSWORD} ${TEMP_ZIP} -r $(basename ${DOKUWIKI_ROOT}) \
+  -x '/data/locks/*.lock' \
+  -x '/data/deleted.files/*' \
+  -x '/data/cache-backup/*/*' \
+  -x '/data/cache/*/*'
+popd
+
+aws s3 cp ${TEMP_ZIP} "${S3_BACKUP_DIR}/$(date '+%Y%m%d-%H%M%S')-$(hostname).zip" --storage-class REDUCED_REDUNDANCY
+rm ${TEMP_ZIP}

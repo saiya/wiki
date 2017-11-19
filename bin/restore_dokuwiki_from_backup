@@ -1,0 +1,25 @@
+#!/bin/bash -xe
+if [ -z "${S3_BACKUP_URI}" ]; then
+  if [ -z "${S3_BACKUP_DIR}" ]; then
+    echo "Please specify \$S3_BACKUP_DIR or \$S3_BACKUP_URI"
+    exit 1
+  fi
+
+  NEWEST_FILE=$(aws s3 ls "${S3_BACKUP_DIR}/" | awk '{print $4}' | sort | tail -1)
+  if [ -z "${NEWEST_FILE}" ]; then 
+    echo "No file found under ${S3_BACKUP_DIR} (note: URI should not end with /)"
+    exit 1
+  fi
+  S3_BACKUP_URI="${S3_BACKUP_DIR}/${NEWEST_FILE}"
+  echo "S3_BACKUP_URI=${S3_BACKUP_URI}"
+fi
+
+TEMP_ZIP=/tmp/dokuwiki_backup_for_restore.zip
+aws s3 cp "${S3_BACKUP_URI}" ${TEMP_ZIP}
+
+TEMPDIR=$(mktemp -d)
+unzip -P ${BACKUP_ZIP_PASSWORD} ${TEMP_ZIP} -d ${TEMPDIR}
+rsync -av ${TEMPDIR}/dokuwiki/ ${DOKUWIKI_ROOT}/
+rm -r ${TEMPDIR}
+rm ${TEMP_ZIP}
+
