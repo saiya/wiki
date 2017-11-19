@@ -3,7 +3,8 @@ Dokuwiki docker container with S3 backup mechanism.
 # Build and run container
 
 ```
-docker build -t wiki .
+docker build -t wiki .  # or use `./push_to_aws_ecr.sh` to push AWS ECR
+
 docker run -it \
   -p 8080:80 \
   -e 'AWS_ACCESS_KEY_ID=...' \
