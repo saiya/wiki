@@ -4,28 +4,20 @@ Dokuwiki docker container with S3 backup mechanism.
 
 ```
 docker build -t wiki .
+docker run -it \
+  -p 8080:80 \
+  -e 'AWS_ACCESS_KEY_ID=...' \
+  -e 'AWS_SECRET_ACCESS_KEY=...' \
+  -e 'AWS_DEFAULT_REGION=ap-northeast-1' \
+  -e 'S3_BACKUP_DIR=s3://...' \
+  -e 'BACKUP_ZIP_PASSWORD=...'
+  wiki
 ```
 
 # Restore backup from S3
 
-```
-docker run -it \
-  -e 'AWS_ACCESS_KEY_ID=...' \
-  -e 'AWS_SECRET_ACCESS_KEY=...' \
-  -e 'AWS_DEFAULT_REGION=ap-northeast-1' \
-  -e 'S3_BACKUP_DIR=s3://...' \
-  -e 'BACKUP_ZIP_PASSWORD=...'
-  wiki restore_dokuwiki_from_backup
-```
+Run `restore_dokuwiki_from_backup` command in running container.
 
 # Store backup into S3
 
-```
-docker run -it \
-  -e 'AWS_ACCESS_KEY_ID=...' \
-  -e 'AWS_SECRET_ACCESS_KEY=...' \
-  -e 'AWS_DEFAULT_REGION=ap-northeast-1' \
-  -e 'S3_BACKUP_DIR=s3://...' \
-  -e 'BACKUP_ZIP_PASSWORD=...'
-  wiki backup_dokuwiki
-```
+Run `backup_dokuwiki` command in running container.

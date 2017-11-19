@@ -20,6 +20,7 @@ aws s3 cp "${S3_BACKUP_URI}" ${TEMP_ZIP}
 TEMPDIR=$(mktemp -d)
 unzip -P ${BACKUP_ZIP_PASSWORD} ${TEMP_ZIP} -d ${TEMPDIR}
 rsync -av ${TEMPDIR}/dokuwiki/ ${DOKUWIKI_ROOT}/
+chown -R www-data:www-data ${DOKUWIKI_ROOT}
 rm -r ${TEMPDIR}
 rm ${TEMP_ZIP}
 
