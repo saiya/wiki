@@ -1,38 +1,48 @@
-FROM ubuntu:16.04
+# https://github.com/docker-library/php/tree/master/7.1/jessie/apache
+FROM php:7.1-apache   
 
 VOLUME [ "/dokuwiki" ]
 ENV DOKUWIKI_ROOT "/dokuwiki"
 
-RUN DEBIAN_FRONTEND=noninteractive sh -c '\
-    apt-get update && \
-    apt-get -y upgrade && \
-    apt-get -y install \
-      tzdata apt-utils \
-      wget curl zip rsync jq \
-      lighttpd php-cgi php-gd php-ldap php-curl php-mbstring php-xml \
-      python-pip && \
-    apt-get clean autoclean && \
-    apt-get autoremove && \
-    rm -rf /var/lib/{apt,dpkg,cache,log} \
-    '
+
+# Install packages and PHP extensions
+RUN apt-get update && apt-get install -y \
+        tzdata apt-utils \
+        wget curl zip rsync jq \
+        python-pip \
+	 	libfreetype6-dev libjpeg62-turbo-dev libmcrypt-dev libpng-dev libxml2-dev libldb-dev libldap-dev \
+        && \
+    apt-get clean autoclean && apt-get autoremove && rm -rf /var/lib/{apt,dpkg,cache,log}
+RUN ln -s /usr/lib/x86_64-linux-gnu/libldap.so /usr/lib/libldap.so \
+    && ln -s /usr/lib/x86_64-linux-gnu/liblber.so /usr/lib/liblber.so
+RUN docker-php-ext-install -j$(nproc) iconv mcrypt xml ldap \
+	&& docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+	&& docker-php-ext-install -j$(nproc) gd
+# Note: PHP extensions `curl`, `mbstring` are already installed in base image
+
+
+# Change DocumentRoot
+RUN sed -ri -e 's!/var/www/html!${DOKUWIKI_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!${DOKUWIKI_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+
+# Install AWS CLI
 RUN pip install awscli --upgrade
+
 
 # Fix timezone
 ENV TZ Asia/Tokyo
 RUN ln -nf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-ADD bin/* /usr/local/bin/
-ADD entrypoint.sh /entrypoint.sh
-# Must be after lighttpd installation
-ADD lighttpd/lighttpd.conf /etc/lighttpd/lighttpd.conf 
-ADD lighttpd/conf-available/*.conf /etc/lighttpd/conf-available/
 
-# Must be after lighttpd config file ADD
-RUN lighty-enable-mod dokuwiki fastcgi accesslog && \
-    mkdir /var/run/lighttpd && \
-    gpasswd -a www-data tty && \
-    chown www-data.www-data /var/run/lighttpd && \
-    chown -R www-data:www-data ${DOKUWIKI_ROOT}
+# Configure PHP
+ADD php/conf.d/* /usr/local/etc/php/conf.d/
+
+
+# Deploy scripts
+ADD bin/* /usr/local/bin/
+ADD entrypoint.sh /
+
 
 EXPOSE 80
 CMD "/entrypoint.sh"

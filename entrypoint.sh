@@ -5,4 +5,7 @@ if [ -z "$(ls -A ${DOKUWIKI_ROOT})" ]; then
   restore_dokuwiki_from_backup || echo "Backup restore failed, ${DOKUWIKI_ROOT} is still empty"
 fi
 
-/usr/sbin/lighttpd -D -f /etc/lighttpd/lighttpd.conf
+chmod -R g+w ${DOKUWIKI_ROOT}
+chgrp -R www-data ${DOKUWIKI_ROOT}
+
+apache2-foreground
