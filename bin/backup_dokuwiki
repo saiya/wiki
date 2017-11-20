@@ -7,7 +7,7 @@ fi
 TEMP_ZIP=/tmp/dokuwiki_backup_intermidiate.zip
 
 pushd $(dirname ${DOKUWIKI_ROOT})
-zip -P ${BACKUP_ZIP_PASSWORD} ${TEMP_ZIP} -r $(basename ${DOKUWIKI_ROOT}) \
+zip -P $(backup_zip_password) ${TEMP_ZIP} -r $(basename ${DOKUWIKI_ROOT}) \
   -x '/data/locks/*.lock' \
   -x '/data/deleted.files/*' \
   -x '/data/cache-backup/*/*' \

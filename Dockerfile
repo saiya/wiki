@@ -1,6 +1,6 @@
 FROM ubuntu:16.04
 
-VOLUME [ "/dokuwiki" ,"/var/log" ]
+VOLUME [ "/dokuwiki" ]
 ENV DOKUWIKI_ROOT "/dokuwiki"
 
 RUN DEBIAN_FRONTEND=noninteractive \
