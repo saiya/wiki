@@ -3,17 +3,18 @@ FROM ubuntu:16.04
 VOLUME [ "/dokuwiki" ]
 ENV DOKUWIKI_ROOT "/dokuwiki"
 
-RUN DEBIAN_FRONTEND=noninteractive \
+RUN DEBIAN_FRONTEND=noninteractive sh -c '\
     apt-get update && \
     apt-get -y upgrade && \
     apt-get -y install \
       tzdata apt-utils \
-      wget curl zip rsync \
+      wget curl zip rsync jq \
       lighttpd php-cgi php-gd php-ldap php-curl php-mbstring php-xml \
       python-pip && \
     apt-get clean autoclean && \
     apt-get autoremove && \
-    rm -rf /var/lib/{apt,dpkg,cache,log}
+    rm -rf /var/lib/{apt,dpkg,cache,log} \
+    '
 RUN pip install awscli --upgrade
 
 # Fix timezone
