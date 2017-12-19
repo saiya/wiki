@@ -7,6 +7,7 @@ docker build -t wiki .  # or use `./push_to_aws_ecr.sh` to push AWS ECR
 
 docker run -it \
   -p 8080:80 \
+  -v /tmp/dokuwiki:/dokuwiki \
   -e 'AWS_ACCESS_KEY_ID=...' \
   -e 'AWS_SECRET_ACCESS_KEY=...' \
   -e 'AWS_DEFAULT_REGION=ap-northeast-1' \

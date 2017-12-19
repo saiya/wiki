@@ -8,4 +8,4 @@ fi
 chmod -R g+w ${DOKUWIKI_ROOT}
 chgrp -R www-data ${DOKUWIKI_ROOT}
 
-apache2-foreground
+exec supervisord -c /supervisord.conf
