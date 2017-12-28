@@ -21,6 +21,6 @@ popd
 
 # http://docs.aws.amazon.com/cli/latest/reference/s3/cp.html
 aws s3 cp ${TEMP_ZIP} "${S3_BACKUP_DIR}/$(date '+%Y%m%d-%H%M%S')-$(hostname).zip" \
-  --storage-class REDUCED_REDUNDANCY
+  --storage-class REDUCED_REDUNDANCY \
   --metadata "BackupStartedAt=\"${BACKUP_STARTED_AT}\",EncryptedZipPassword=\"$(backup_zip_password_encrypted || echo '')\""
 rm ${TEMP_ZIP}
