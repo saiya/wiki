@@ -18,9 +18,9 @@ TEMP_ZIP=/tmp/dokuwiki_backup_for_restore.zip
 aws s3 cp "${S3_BACKUP_URI}" ${TEMP_ZIP}
 
 TEMPDIR=$(mktemp -d)
-unzip -P $(backup_zip_password) ${TEMP_ZIP} -d ${TEMPDIR}
-rsync -av ${TEMPDIR}/dokuwiki/ ${DOKUWIKI_ROOT}/
+unzip -q -P $(backup_zip_password) ${TEMP_ZIP} -d ${TEMPDIR}
+rsync -a ${TEMPDIR}/dokuwiki/ ${DOKUWIKI_ROOT}/
+ls -l ${DOKUWIKI_ROOT}/
 chown -R www-data:www-data ${DOKUWIKI_ROOT}
 rm -r ${TEMPDIR}
 rm ${TEMP_ZIP}
-

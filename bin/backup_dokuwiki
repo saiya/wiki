@@ -8,11 +8,15 @@ TEMP_ZIP=/tmp/dokuwiki_backup_intermidiate.zip
 BACKUP_STARTED_AT=$(date '+%Y-%m-%dT%H:%M:%S%z')
 
 pushd $(dirname ${DOKUWIKI_ROOT})
-zip -P $(backup_zip_password) ${TEMP_ZIP} -r $(basename ${DOKUWIKI_ROOT}) \
+set +x  # Hide password from stdout
+set -v
+zip -q -P $(backup_zip_password) ${TEMP_ZIP} -r $(basename ${DOKUWIKI_ROOT}) \
   -x '/data/locks/*.lock' \
   -x '/data/deleted.files/*' \
   -x '/data/cache-backup/*/*' \
   -x '/data/cache/*/*'
+set +v
+set -x
 popd
 
 # http://docs.aws.amazon.com/cli/latest/reference/s3/cp.html
