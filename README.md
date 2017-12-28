@@ -16,6 +16,11 @@ docker run -it \
   wiki
 ```
 
+## Build and upload to AWS ECR
+
+`push_to_ecr.sh` is useful to upload this image into your ECR repository.
+
+
 # dokuwiki data persistence
 
 ## Docker volume
@@ -48,3 +53,20 @@ docker run -it \
   -e 'BACKUP_ZIP_PASSWORD=...'
   backup_dokuwiki                         <- Run backup_dokuwiki command instead of wiki server
 ```
+
+### Encrypt `BACKUP_ZIP_PASSWORD` with AWS KMS
+
+You can use `BACKUP_ZIP_PASSWORD_ENCRYPTED` variable instead of `BACKUP_ZIP_PASSWORD`.
+
+To use it, see following procedure:
+
+1. Create AWS KMS master key
+2. Encrypt ZIP password with it: `aws kms encrypt --key-id alias/NAME_OF_YOUR_KEY --plaintext "ZIP_PASSWORD_TO_ENCRYPT" --query CiphertextBlob --output text` (requires AWS CLI tool)
+  - Don't forget to replace `NAME_OF_YOUR_KEY` and also `ZIP_PASSWORD_TO_ENCRYPT`
+  - This command outputs Base64 string (encrypted password)
+3. Set output of above command into `BACKUP_ZIP_PASSWORD_ENCRYPTED` variable
+4. Delete `BACKUP_ZIP_PASSWORD` variable (if exists)
+
+And also, if you set your key alias (`alias/NAME_OF_YOUR_KEY`) into `BACKUP_ZIP_PASSWORD_REENCRYPT_KEY` variable, encrypted zip password will be saved into `EncryptedZipPassword` S3 metadata. I recommend this for just in case when you lost both ZIP password and encrypted password.
+
+If you had set `BACKUP_ZIP_PASSWORD_REENCRYPT_KEY` on backup, anytime you can recover zip password with this command: `aws kms decrypt --ciphertext-blob fileb://<(echo 'VALUE_OF_EncryptedZipPassword_METADATA' | base64 -d)` (see `PlainText` of output JSON).
