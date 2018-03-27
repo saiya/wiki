@@ -15,7 +15,7 @@ if [ -z "${S3_BACKUP_URI}" ]; then
 fi
 
 TEMP_ZIP=/tmp/dokuwiki_backup_for_restore.zip
-aws s3 cp "${S3_BACKUP_URI}" ${TEMP_ZIP}
+aws s3 cp --no-progress "${S3_BACKUP_URI}" ${TEMP_ZIP}
 
 TEMPDIR=$(mktemp -d)
 set +x  # Hide password from stdout
