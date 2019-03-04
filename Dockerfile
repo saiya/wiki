@@ -1,5 +1,5 @@
 # https://github.com/docker-library/docs/tree/master/php
-FROM php:7.2-fpm-stretch
+FROM php:7.3-fpm-stretch
 
 VOLUME [ "/dokuwiki" ]
 ENV DOKUWIKI_ROOT "/dokuwiki"
@@ -23,7 +23,7 @@ RUN docker-php-ext-install -j$(nproc) iconv xml ldap \
 	&& docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
 	&& docker-php-ext-install -j$(nproc) gd
 # https://stackoverflow.com/a/47673183
-RUN pecl install mcrypt-1.0.1 && docker-php-ext-enable mcrypt
+RUN pecl install mcrypt-1.0.2 && docker-php-ext-enable mcrypt
 
 # Fix timezone
 ENV TZ Asia/Tokyo
